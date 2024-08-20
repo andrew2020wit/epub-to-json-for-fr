@@ -1,0 +1,18 @@
+{
+  "name": "epub-to-json-for-fr",
+  "version": "1.0.0",
+  "main": "src/index.mjs",
+  "scripts": {
+    "go": "node src/index.mjs"
+  },
+  "author": "Andrew Faurash",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "epub": "^1.2.1",
+    "html-to-text": "^9.0.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.4.1"
+  }
+}
