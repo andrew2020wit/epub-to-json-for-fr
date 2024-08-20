@@ -9,6 +9,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "docx": "^8.5.0",
     "epub": "^1.2.1",
     "html-to-text": "^9.0.5"
   },

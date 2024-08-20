@@ -2,8 +2,16 @@ import EPub from 'epub';
 import {convert} from "html-to-text";
 import fs from 'node:fs';
 import {textSplitSeparators} from "./const/text-split-separators.const.mjs";
+import * as docx from "docx";
 
 const epubFolder = './epub-files';
+
+const bookIdOpenMarker = '[[[[';
+const bookIdCloseMarker = ']]]]';
+const lineIdOpenMarker = '[[[';
+const lineIdCloseMarker = ']]]';
+const lineIdOpenMarker2 = '(((';
+const lineIdCloseMarker2 = ')))';
 
 const convertHtmlToTextOption = {
     wordwrap: false,
@@ -62,6 +70,54 @@ async function convertEpubFileToJsonFile(pathToFile) {
     jsonBook.headers = bookHeaders;
 
     fs.writeFileSync(epubFolder + '/' + extendedName + '.json', JSON.stringify({jsonContentDescription: "ForeignReaderBook", book: jsonBook}, null, 2));
+
+    // docx for translation
+
+    const docxChildren = [];
+
+    docxChildren.push(
+        new docx.Paragraph({
+            children: [
+                new docx.TextRun(bookIdOpenMarker + jsonBook.id + bookIdCloseMarker),
+            ],
+        }),
+    );
+
+    jsonBook.content.forEach((contentItem, contentItemIndex) => {
+        contentItem.text.forEach((textLine, textLineIndex) => {
+            const id = lineIdOpenMarker + contentItemIndex + lineIdCloseMarker  + lineIdOpenMarker2 + textLineIndex + lineIdCloseMarker2;
+
+            docxChildren.push(
+                new docx.Paragraph({
+                    children: [
+                        new docx.TextRun(id),
+                    ],
+                }),
+            );
+
+            docxChildren.push(
+                new docx.Paragraph({
+                    children: [
+                        new docx.TextRun(textLine),
+                    ],
+                }),
+            );
+        });
+    });
+
+    const docxDocument = new docx.Document({
+        sections: [
+            {
+                properties: {},
+                children: docxChildren,
+            },
+        ],
+    });
+
+// Used to export the file into a .docx file
+    docx.Packer.toBuffer(docxDocument).then((buffer) => {
+        fs.writeFileSync(epubFolder + '/' + extendedName + '.to-translate.docx', buffer);
+    });
 }
 
 function convertHtmlToText(html) {
