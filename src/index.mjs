@@ -15,7 +15,7 @@ const lineIdCloseMarker2 = ')))';
 
 const convertHtmlToTextOption = {
     wordwrap: false,
-    preserveNewlines: true
+    preserveNewlines: false
 };
 
 await convertEpubFilesToJsonFile(epubFolder);
