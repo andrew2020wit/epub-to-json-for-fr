@@ -4,6 +4,8 @@ import fs from 'node:fs';
 import {textSplitSeparators} from "./const/text-split-separators.const.mjs";
 import * as docx from "docx";
 
+const skipFirstEmptyParagraph = true;
+
 const epubFolder = './epub-files';
 
 const bookIdOpenMarker = '[[[[';
@@ -129,12 +131,12 @@ function makeContentItem(chapter, chapterHtml, bookContent, bookHeaders) {
 
     const lastContentIndex = bookContent.length - 1;
 
-    const textArrNotFiltered = chapterText
+    const notFilteredTextArr = chapterText
         .split('\n')
         .map((x) => x.trim());
 
-    const textArr = textArrNotFiltered;
-        // .filter((item, index) => !!item || !!textArrNotFiltered[index - 1]);
+    const textArr = skipFirstEmptyParagraph ? notFilteredTextArr
+        .filter((item, index) => !!item || !notFilteredTextArr[index - 1]) : notFilteredTextArr;
 
     const paragraphContent = textArr.map((item, index) => {
         let text = item;
