@@ -22,23 +22,25 @@ const convertHtmlToTextOption = {
 
 await convertEpubFilesToJsonFile(epubFolder);
 
-async function convertEpubFilesToJsonFile(epubFolder){
+async function convertEpubFilesToJsonFile(epubFolder) {
     const dirContent = fs.readdirSync(epubFolder);
-    const paths = dirContent
-        .filter(name => name.includes('.epub'))
-        .map(name => epubFolder + '/' + name);
+    const fileNames = dirContent
+        .filter(name => name.slice(-5) === '.epub');
 
-    for (const path of paths) {
-        await convertEpubFileToJsonFile(path);
+    for (const fileName of fileNames) {
+        await convertEpubFileToJsonFile(fileName);
     }
 }
 
-async function convertEpubFileToJsonFile(pathToFile) {
-    const epub = new EPub(pathToFile);
+async function convertEpubFileToJsonFile(fileName) {
+    const epub = new EPub(epubFolder + '/' + fileName);
 
     await new Promise((resolve, reject) => {
         epub.on('end', () => resolve());
-        epub.on('error', (err) => reject(err));
+        epub.on('error', (err) => {
+            console.error(err);
+            reject(err);
+        });
         epub.parse();
     });
 
@@ -58,6 +60,7 @@ async function convertEpubFileToJsonFile(pathToFile) {
         const chapterHtml = await new Promise((resolve, reject) => {
             epub.getChapter(chapter.id, (err, chapterText) => {
                 if (err) {
+                    console.error(err);
                     reject(err);
                 } else {
                     resolve(chapterText);
@@ -71,7 +74,10 @@ async function convertEpubFileToJsonFile(pathToFile) {
     jsonBook.content = bookContent;
     jsonBook.headers = bookHeaders;
 
-    fs.writeFileSync(epubFolder + '/' + extendedName + '.json', JSON.stringify({jsonContentDescription: "ForeignReaderBook", book: jsonBook}, null, 2));
+    fs.writeFileSync(epubFolder + '/' + fileName + '.json', JSON.stringify({
+        jsonContentDescription: "ForeignReaderBook",
+        book: jsonBook
+    }, null, 2));
 
     // docx for translation
 
@@ -87,7 +93,7 @@ async function convertEpubFileToJsonFile(pathToFile) {
 
     jsonBook.content.forEach((contentItem, contentItemIndex) => {
         contentItem.text.forEach((textLine, textLineIndex) => {
-            const id = lineIdOpenMarker + contentItemIndex + lineIdCloseMarker  + lineIdOpenMarker2 + textLineIndex + lineIdCloseMarker2;
+            const id = lineIdOpenMarker + contentItemIndex + lineIdCloseMarker + lineIdOpenMarker2 + textLineIndex + lineIdCloseMarker2;
 
             docxChildren.push(
                 new docx.Paragraph({
@@ -116,10 +122,12 @@ async function convertEpubFileToJsonFile(pathToFile) {
         ],
     });
 
-// Used to export the file into a .docx file
-    docx.Packer.toBuffer(docxDocument).then((buffer) => {
-        fs.writeFileSync(epubFolder + '/' + extendedName + '.to-translate.docx', buffer);
-    });
+    docx.Packer.toBuffer(docxDocument).then(
+        (buffer) => {
+            fs.writeFileSync(epubFolder + '/' + fileName + '.to-translate.docx', buffer);
+        },
+        err => console.error(err)
+    );
 }
 
 function convertHtmlToText(html) {
@@ -148,13 +156,13 @@ function makeContentItem(chapter, chapterHtml, bookContent, bookHeaders) {
         const phrases = text.split('\n').map(x => x.trim()).filter(x => !!x);
 
         return {
-            id:  lastContentIndex + 1 + index,
+            id: lastContentIndex + 1 + index,
             text: phrases
         }
     })
 
     const headerIndex = lastContentIndex + 1;
-    const headerTitle = '[' + (chapter.level || 0) + '] ' + (chapter.order) + ': ' +  chapter.title;
+    const headerTitle = '[' + (chapter.level || 0) + '] ' + (chapter.order) + ': ' + chapter.title;
 
     bookContent.push(...paragraphContent);
 
