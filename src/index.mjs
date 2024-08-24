@@ -34,6 +34,7 @@ async function convertEpubFilesToJsonFile(epubFolder) {
 
 async function convertEpubFileToJsonFile(fileName) {
     const epub = new EPub(epubFolder + '/' + fileName);
+    const fileNameWithoutExtension = fileName.slice(0, -5);
 
     await new Promise((resolve, reject) => {
         epub.on('end', () => resolve());
@@ -74,7 +75,7 @@ async function convertEpubFileToJsonFile(fileName) {
     jsonBook.content = bookContent;
     jsonBook.headers = bookHeaders;
 
-    fs.writeFileSync(epubFolder + '/' + fileName + '.json', JSON.stringify({
+    fs.writeFileSync(epubFolder + '/' + fileNameWithoutExtension + '.json', JSON.stringify({
         jsonContentDescription: "ForeignReaderBook",
         book: jsonBook
     }, null, 2));
@@ -124,7 +125,7 @@ async function convertEpubFileToJsonFile(fileName) {
 
     docx.Packer.toBuffer(docxDocument).then(
         (buffer) => {
-            fs.writeFileSync(epubFolder + '/' + fileName + '.to-translate.docx', buffer);
+            fs.writeFileSync(epubFolder + '/' + fileNameWithoutExtension + '.to-translate.docx', buffer);
         },
         err => console.error(err)
     );
