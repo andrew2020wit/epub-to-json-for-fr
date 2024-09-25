@@ -2,7 +2,9 @@ import EPub from 'epub';
 import {convert} from "html-to-text";
 import fs from 'node:fs';
 import {textSplitSeparators} from "./const/text-split-separators.const.mjs";
-import * as docx from "docx";
+import {createDocx} from "./create-docx-to-translate.mjs";
+
+const createDocxToTranslate = true;
 
 const skipAllEmptyParagraphs = false;
 const skipFirstEmptyParagraph = true;
@@ -10,13 +12,6 @@ const skipSecondEmptyParagraph = false;
 const skipThirdEmptyParagraph = false;
 
 const epubFolder = './epub-files';
-
-const bookIdOpenMarker = '[[[[';
-const bookIdCloseMarker = ']]]]';
-const lineIdOpenMarker = '[[[';
-const lineIdCloseMarker = ']]]';
-const lineIdOpenMarker2 = '(((';
-const lineIdCloseMarker2 = ')))';
 
 const convertHtmlToTextOption = {
     wordwrap: false,
@@ -83,55 +78,9 @@ async function convertEpubFileToJsonFile(fileName) {
         book: jsonBook
     }, null, 2));
 
-    // docx for translation
-
-    const docxChildren = [];
-
-    docxChildren.push(
-        new docx.Paragraph({
-            children: [
-                new docx.TextRun(bookIdOpenMarker + jsonBook.id + bookIdCloseMarker),
-            ],
-        }),
-    );
-
-    jsonBook.content.forEach((contentItem, contentItemIndex) => {
-        contentItem.text.forEach((textLine, textLineIndex) => {
-            const id = lineIdOpenMarker + contentItemIndex + lineIdCloseMarker + lineIdOpenMarker2 + textLineIndex + lineIdCloseMarker2;
-
-            docxChildren.push(
-                new docx.Paragraph({
-                    children: [
-                        new docx.TextRun(id),
-                    ],
-                }),
-            );
-
-            docxChildren.push(
-                new docx.Paragraph({
-                    children: [
-                        new docx.TextRun(textLine),
-                    ],
-                }),
-            );
-        });
-    });
-
-    const docxDocument = new docx.Document({
-        sections: [
-            {
-                properties: {},
-                children: docxChildren,
-            },
-        ],
-    });
-
-    docx.Packer.toBuffer(docxDocument).then(
-        (buffer) => {
-            fs.writeFileSync(epubFolder + '/' + fileNameWithoutExtension + '.to-translate.docx', buffer);
-        },
-        err => console.error(err)
-    );
+    if (createDocxToTranslate) {
+        createDocx(jsonBook, epubFolder, fileNameWithoutExtension);
+    }
 }
 
 function convertHtmlToText(html) {
