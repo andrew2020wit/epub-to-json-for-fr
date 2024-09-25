@@ -9,6 +9,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "bing-translate-api": "^4.0.2",
     "docx": "^8.5.0",
     "epub": "^1.2.1",
     "html-to-text": "^9.0.5"

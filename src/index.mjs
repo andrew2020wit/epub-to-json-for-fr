@@ -3,8 +3,13 @@ import {convert} from "html-to-text";
 import fs from 'node:fs';
 import {textSplitSeparators} from "./const/text-split-separators.const.mjs";
 import {createDocx} from "./create-docx-to-translate.mjs";
+import {translateJsonBook} from "./translate.mjs";
 
 const createDocxToTranslate = true;
+
+const translate = true;
+const translateFromLang = 'en';
+const translateToLang = 'ru';
 
 const skipAllEmptyParagraphs = false;
 const skipFirstEmptyParagraph = true;
@@ -72,6 +77,10 @@ async function convertEpubFileToJsonFile(fileName) {
 
     jsonBook.content = bookContent;
     jsonBook.headers = bookHeaders;
+
+    if (translate) {
+       await translateJsonBook(jsonBook, translateFromLang, translateToLang, epubFolder);
+    }
 
     fs.writeFileSync(epubFolder + '/' + fileNameWithoutExtension + '.json', JSON.stringify({
         jsonContentDescription: "ForeignReaderBook",
