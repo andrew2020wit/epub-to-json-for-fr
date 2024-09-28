@@ -1,20 +1,24 @@
 {
   "name": "epub-to-json-for-fr",
   "version": "1.0.0",
-  "main": "src/index.mjs",
+  "main": "src/index.ts",
   "scripts": {
-    "go": "node src/index.mjs"
+    "go": "npx tsx src/index.ts translateDocx",
+    "translate": "npx tsx src/index.ts translate translateDelayMs:100 translateFromLang:en translateToLang:ru"
   },
   "author": "Andrew Faurash",
   "license": "ISC",
+  "type": "module",
   "description": "",
   "dependencies": {
+    "@types/html-to-text": "^9.0.4",
     "bing-translate-api": "^4.0.2",
     "docx": "^8.5.0",
     "epub": "^1.2.1",
     "html-to-text": "^9.0.5"
   },
   "devDependencies": {
-    "@types/node": "^22.4.1"
+    "@types/node": "^22.4.1",
+    "tsx": "^4.19.1"
   }
 }

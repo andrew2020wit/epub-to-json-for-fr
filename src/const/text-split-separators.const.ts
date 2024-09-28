@@ -1,4 +1,4 @@
-export const textSplitSeparators= [
+export const textSplitSeparators = [
     // ',',
     '. ',
     '! ',
@@ -12,4 +12,4 @@ export const textSplitSeparators= [
     '" ',
     '` ',
     '’ ',
-];
+] as const;

@@ -1,5 +1,8 @@
-import * as docx from "docx";
+import {IBookParagraph} from "./models/book.interface.js";
 import fs from "node:fs";
+import {IBookJson} from "./models/book-json.interface.ts";
+import {IScriptParams} from "./script-params.interface.ts";
+import * as docx from "docx";
 
 // create docx-file for google-translate
 
@@ -10,7 +13,7 @@ const lineIdCloseMarker = ']]]';
 const lineIdOpenMarker2 = '(((';
 const lineIdCloseMarker2 = ')))';
 
-export function createDocx(jsonBook, epubFolder, fileNameWithoutExtension) {
+export function createDocx(jsonBook: IBookJson['book'], scriptParams: IScriptParams, fileNameWithoutExtension: string) {
     const docxChildren = [];
 
     docxChildren.push(
@@ -21,7 +24,7 @@ export function createDocx(jsonBook, epubFolder, fileNameWithoutExtension) {
         }),
     );
 
-    jsonBook.content.forEach((contentItem, contentItemIndex) => {
+    jsonBook.content.forEach((contentItem: IBookParagraph, contentItemIndex: number) => {
         contentItem.text.forEach((textLine, textLineIndex) => {
             const id = lineIdOpenMarker + contentItemIndex + lineIdCloseMarker + lineIdOpenMarker2 + textLineIndex + lineIdCloseMarker2;
 
@@ -53,9 +56,9 @@ export function createDocx(jsonBook, epubFolder, fileNameWithoutExtension) {
     });
 
     docx.Packer.toBuffer(docxDocument).then(
-        (buffer) => {
-            fs.writeFileSync(epubFolder + '/' + fileNameWithoutExtension + '.to-translate.docx', buffer);
+        (buffer: Buffer) => {
+            fs.writeFileSync(scriptParams.epubFolder + '/' + fileNameWithoutExtension + '.to-translate.docx', buffer);
         },
-        err => console.error(err)
+        (err: Error) => console.error(err)
     );
 }
