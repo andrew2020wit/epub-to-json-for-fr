@@ -1,7 +1,8 @@
 {
-  "name": "epub-to-json-for-fr",
-  "version": "1.0.0",
+  "name": "epub-to-json-for-the-foreign-reader",
+  "version": "2.0.0",
   "main": "src/index.ts",
+  "homepage": "https://github.com/andrew2020wit/epub-to-json-for-fr",
   "scripts": {
     "go": "npx tsx src/index.ts translateDocx",
     "translate": "npx tsx src/index.ts translate translateDelayMs:100 translateFromLang:en translateToLang:ru"

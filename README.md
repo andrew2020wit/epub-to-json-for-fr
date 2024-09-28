@@ -1,4 +1,4 @@
-# Convert epub-files to json files for Foreign Reader
+# Convert epub-files to json files for the Foreign Reader
 
 - install node.js
 - run ```npm install``` in this folder
